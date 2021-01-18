@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\EleveRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -36,6 +38,21 @@ class Eleve
      * @ORM\Column(type="float", nullable=true)
      */
     private $moyenne;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $id_classe;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ClasseEleve::class, mappedBy="classe")
+     */
+    private $classes;
+
+    public function __construct()
+    {
+        $this->classes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -86,6 +103,48 @@ class Eleve
     public function setMoyenne(?float $moyenne): self
     {
         $this->moyenne = $moyenne;
+
+        return $this;
+    }
+
+    public function getIdClasse(): ?int
+    {
+        return $this->id_classe;
+    }
+
+    public function setIdClasse(int $id_classe): self
+    {
+        $this->id_classe = $id_classe;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ClasseEleve[]
+     */
+    public function getClasses(): Collection
+    {
+        return $this->classes;
+    }
+
+    public function addClass(ClasseEleve $class): self
+    {
+        if (!$this->classes->contains($class)) {
+            $this->classes[] = $class;
+            $class->setClasse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClass(ClasseEleve $class): self
+    {
+        if ($this->classes->removeElement($class)) {
+            // set the owning side to null (unless already changed)
+            if ($class->getClasse() === $this) {
+                $class->setClasse(null);
+            }
+        }
 
         return $this;
     }
